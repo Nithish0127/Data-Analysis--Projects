@@ -1,0 +1,129 @@
+# Objectives:
+# Extract meaningful information from the McDonald's menu nutritional dataset.
+# Perform exploratory data analysis to understand the nutritional distribution and trends.
+# Create visualizations to present the calorie count and nutrition facts of different menu items.
+# Identify healthy and less healthy menu options based on nutritional content.
+
+import pandas as pd
+import seaborn as sns
+
+Nutrition = pd.read_csv('Nutrical Dataset.csv')
+Nutrition.shape
+Nutrition.info() 
+Nutrition.head()
+Nutrition.isnull().sum()
+print(Nutrition['Calories'].describe())
+sns.histplot(Nutrition['Calories'])
+Nutrition.groupby('Item')['Calories'].describe()
+
+import matplotlib.pyplot as plt
+plt.figure(figsize=(6,4))
+sns.boxplot(x=Nutrition['Calories'])
+plt.title('Box Plot of Calories')
+plt.show()
+
+print("The Unique Menu Items are:", Nutrition['Item'].unique())
+
+print("The Unique Menu Items are:", Nutrition['Calories'].unique())
+
+# Top 10 menu items with the highest calories
+top_items = Nutrition.nlargest(10, 'Calories')
+print(top_items[['Item', 'Calories']])
+
+plt.figure(figsize=(6,4))
+top_items = Nutrition.groupby('Item')['Calories'].mean().nlargest(10)
+top_items.plot(kind='barh')
+plt.title('Top 10 Menu Items by Calorie Count')
+plt.xlabel('Calories')
+plt.ylabel('Item')
+plt.show()
+
+from scipy import stats
+
+z_scores = stats.zscore(Nutrition['Calories'])
+outliers = Nutrition[abs(z_scores) > 3]  # Items with z-scores greater than 3
+print(outliers[['Item', 'Calories']])
+
+
+skew_calories = Nutrition['Calories'].skew()
+
+
+print("Skewness of Calories:", skew_calories)
+
+# Find the row with the minimum value in the 'Calories' column
+min_calorie_item = Nutrition.loc[Nutrition['Calories'].idxmin(), 'Item']
+
+print("Item with the lowest calorie:", min_calorie_item)
+
+# Explore the nutritional content (e.g., fat, protein, carbohydrates) of different items.
+print(Nutrition[['Cholesterol', 'Protein', 'Sugars']].describe())
+
+sns.histplot(Nutrition[['Protein', 'Sugars', 'Cholesterol']])
+plt.figure(figsize=(4,4))
+sns.histplot(Nutrition['Protein'])
+
+plt.figure(figsize=(4,4))
+sns.histplot(Nutrition['Sugars'])
+
+plt.figure(figsize=(6,3))
+sns.histplot(Nutrition['Cholesterol'])
+
+Nutrition.groupby('Item')[['Protein','Sugars']].describe()
+
+Nutrition.groupby('Item')[['Sugars', 'Protein', 'Cholesterol']].describe()
+
+import matplotlib.pyplot as plt
+
+plt.figure(figsize=(6,4))
+sns.boxplot(x=Nutrition['Protein'])
+plt.title('Box Plot of Protein')
+plt.show()
+
+plt.figure(figsize=(6,4))
+sns.boxplot(x=Nutrition['Sugars'])
+plt.title('Box Plot of Sugars')
+plt.show()
+
+top_items = Nutrition.nlargest(10, ['Protein', 'Sugars', 'Cholesterol'])
+print(top_items[['Item', 'Protein', 'Sugars', 'Cholesterol']])
+
+plt.figure(figsize=(6,4))
+top_items = Nutrition.groupby('Item')['Calories'].mean().nlargest(10)
+top_items.plot(kind='barh')
+plt.title('Top 10 Menu Items by Calorie Count')
+plt.xlabel('Calories')
+plt.ylabel('Item')
+plt.show()
+Z
+
+from scipy import stats
+
+# Select the columns for which you want to calculate z-scores
+columns = ['Protein', 'Sugars', 'Cholesterol']
+
+# Calculate z-scores for the selected columns collectively
+z_scores = Nutrition[columns].apply(stats.zscore)
+
+# Find outliers: Items where the absolute z-score for any column is greater than 3
+outliers = Nutrition[(z_scores.abs() > 3).any(axis=1)]
+
+# Print the outliers with the desired columns ('Item', 'Calories', 'Sugars', 'Fats')
+print(outliers[['Item', 'Protein', 'Sugars', 'Cholesterol']])
+
+columns = ['Protein', 'Sugars', 'Cholesterol']
+
+skew_Nutrition = Nutrition[columns].skew()
+print("The skewness for :", skew_Nutrition)
+
+columns = ['Cholesterol', 'Protein', 'Sugars']
+min_calorie_item = Nutrition.loc[Nutrition[columns].idxmin(), 'Item']
+print("Item with the better health ratio:", min_calorie_item)
+
+# Group by the 'Item' column and calculate the mean for the relevant nutritional columns
+average_nutrition = Nutrition.groupby('Item')[['Calories', 'Sugars', 'Cholesterol', 'Total Fat', 'Carbohydrates (% Daily Value)', 'Sodium']].mean()
+
+# Filter to get the average nutritional content for 'burger', 'pizza', and 'salad'
+popular_items_avg = average_nutrition.loc[['Hamburger', 'Premium Crispy Chicken Classic Sandwich', 'Baked Apple Pie']]
+
+# Display the result
+print(popular_items_avg)
