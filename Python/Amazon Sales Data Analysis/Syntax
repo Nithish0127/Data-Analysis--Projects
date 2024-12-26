@@ -1,0 +1,145 @@
+## Let's analyze the Netflix dataset using EDA - Exploratory Data Analysis. 
+import pandas as pd
+import seaborn as sns
+Amazon = pd.read_csv("amazon.csv")
+Amazon.head()
+
+Amazon.shape
+Amazon.info()
+Amazon.describe()
+Amazon.isnull().sum()
+
+Amazon['discounted_price'] = Amazon['discounted_price'].str.replace("₹",'')
+Amazon['discounted_price'] = Amazon['discounted_price'].str.replace(",",'')
+Amazon['discounted_price'] = Amazon['discounted_price'].astype('float64')
+
+Amazon['actual_price'] = Amazon['actual_price'].str.replace("₹",'')
+Amazon['actual_price'] = Amazon['actual_price'].str.replace(",",'')
+Amazon['actual_price'] = Amazon['actual_price'].astype('float64')
+
+Amazon['discount_percentage'] = Amazon['discount_percentage'].str.replace('%','').astype('float64')
+
+Amazon['discount_percentage'] = Amazon['discount_percentage'] / 100
+Amazon['rating'].value_counts()
+
+Amazon['rating_count'] = Amazon['rating_count'].str.replace(',', '').astype('float64')
+Amazon.info()
+Amazon.isnull().sum()
+Amazon['rating_count'] = Amazon.rating_count.fillna(value=Amazon['rating_count'].median())
+Amazon.isnull().sum()
+Amazon.duplicated().any()
+Amazon['category'].value_counts()
+
+Amazon['category'].value_counts(normalize = True)
+import matplotlib.pyplot as plt
+plt.scatter(Amazon['actual_price'], Amazon['rating'])
+plt.xlabel('Actual_price')
+plt.ylabel('Rating')
+plt.show()
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+import scipy as sp
+# this is for jupyter notebook to show the plot in the notebook itself instead of opening a new window
+%matplotlib inline
+
+import matplotlib.pyplot as plt
+plt.figure(figsize=(10,8))
+plt.scatter(Amazon['actual_price'], Amazon['rating'])
+plt.xlabel('Actual_price')
+plt.ylabel('Rating')
+plt.show()
+
+plt.hist(Amazon['actual_price'])
+plt.xlabel('Actual Price')
+plt.ylabel('Frequency')
+plt.show()
+
+from sklearn.preprocessing import LabelEncoder
+# label encode categorical variables
+
+le_product_id = LabelEncoder()
+le_category = LabelEncoder()
+le_review_id = LabelEncoder()
+le_review_content = LabelEncoder()
+le_product_name = LabelEncoder()
+le_user_name = LabelEncoder()
+le_about_product = LabelEncoder()
+le_user_id = LabelEncoder()
+le_review_title = LabelEncoder()
+le_img_link = LabelEncoder()
+le_product_link = LabelEncoder()
+
+
+Amazon['product_id'] = le_product_id.fit_transform(Amazon['product_id'])
+Amazon['category'] = le_category.fit_transform(Amazon['category'])
+Amazon['review_id'] = le_review_id.fit_transform(Amazon['review_id'])
+Amazon['review_content'] = le_review_content.fit_transform(Amazon['review_content'])
+Amazon['product_name'] = le_product_name.fit_transform(Amazon['product_name'])
+Amazon['user_name'] = le_user_name.fit_transform(Amazon['user_name'])
+Amazon['about_product'] = le_about_product.fit_transform(Amazon['about_product'])
+Amazon['user_id'] = le_user_id.fit_transform(Amazon['user_id'])
+Amazon['review_title'] = le_review_title.fit_transform(Amazon['review_title'])
+Amazon['img_link'] = le_img_link.fit_transform(Amazon['img_link'])
+Amazon['product_link'] = le_product_link.fit_transform(Amazon['product_link'])
+
+# Calculate mean sales by product category
+grouped_df = df.groupby('category')['rating'].mean()
+
+# Print mean sales by product category
+print(grouped_df)
+
+contigency_table = pd.crosstab(Amazon['actual_price'], Amazon['rating'])
+contigency_table
+
+import scipy.stats as stats
+chi2, p, dof, expected = stats.chi2_contingency(contigency_table)
+
+# print the results
+print('Chi-square statistic:', chi2)
+print('p-value:', p)
+print('Degrees of freedom:', dof)
+print(f"Expected:\n {expected}")
+
+import pandas as pd
+
+# Check the data type of the "rating" column
+print(Amazon["rating"].dtype)
+
+# If the data type is not numeric, convert it to numeric
+if Amazon["rating"].dtype == "object":
+    Amazon["rating"] = pd.to_numeric(Amazon["rating"], errors="coerce")  # Handle potential errors
+
+# Calculate the average ratings after ensuring numeric data type
+average_ratings = Amazon.groupby("category")["rating"].mean().reset_index()
+
+print(average_ratings)
+
+import pandas as pd
+
+top_reviewed_per_category = (
+    Amazon.groupby("category")
+    .apply(lambda x: x.nlargest(10, "rating_count"))
+    .reset_index(drop=True)
+)
+
+print(top_reviewed_per_category)
+
+avg_discount_per_category = Amazon.groupby('category')['discount_percentage'].mean()
+
+# Display results
+print(avg_discount_per_category)
+
+# Optional: Visualization
+sns.barplot(x=avg_discount_per_category.index, y=avg_discount_per_category.values)
+plt.xlabel("Category")
+plt.ylabel("Average Discount Percentage")
+plt.show()
+
+# Count occurrences of product names
+product_counts = Amazon["product_name"].value_counts()
+
+# Sort in descending order and display top results
+print(product_counts.sort_values(ascending=False).head(10))
