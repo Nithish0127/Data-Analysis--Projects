@@ -1,0 +1,61 @@
+# Zomato Data Analysis using python
+# Let's import the required libraries for analysis
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# The dataframe is named as Zomato 
+Zomato = pd.read_csv("Zomato_data.csv")
+Zomato.head()
+
+# let’s convert the data type of the “rate” column to float and remove the denominator.
+def handleRate(value):
+    value = str(value).split('/')
+    value = value[0];
+    return float(value)
+
+Zomato['rate'] = Zomato['rate'].apply(handleRate)
+print(Zomato.head())
+
+Zomato.info()
+
+# Let's analyse the type of restaurants present in the dataset: 
+sns.countplot(x= Zomato['listed_in(type)'])
+plt.xlabel("The type of restaurants")
+
+grouped_data = Zomato.groupby('listed_in(type)')['votes'].sum()
+result = pd.DataFrame({'votes': grouped_data})
+plt.plot(result, c= "green", marker = "o")
+plt.xlabel("Type of restaurants", c="red", size = 15)
+plt.ylabel("Votes", c = "red", size = 15)
+
+max_votes = Zomato['votes'].max()
+restaurant_with_max_votes = Zomato.loc[Zomato['votes'] == max_votes, 'name']
+print("Restaurants with the maximum votes:")
+print(restaurant_with_max_votes)
+
+sns.countplot(x=Zomato['online_order'])
+plt.title("Restaurants with online order")
+
+plt.hist(Zomato['rate'], bins = 5)
+plt.title("Distribution on Rating")
+plt.show()
+
+sns.countplot(x=Zomato['rate'])
+plt.title("Distribution on Rating")
+
+couple_data = Zomato['approx_cost(for two people)']
+sns.countplot(x= couple_data)
+
+plt.figure(figsize = (4,4))
+sns.boxplot(x = 'online_order', y = 'rate', data = Zomato)
+
+pivot_table = Zomato.pivot_table(index='listed_in(type)', columns='online_order', aggfunc='size', fill_value=0)
+sns.heatmap(pivot_table, annot=True, cmap="YlGnBu", fmt='d')
+plt.title("Heatmap")
+plt.xlabel("Online Order")
+plt.ylabel("Listed In (Type)")
+plt.show()
+
+
